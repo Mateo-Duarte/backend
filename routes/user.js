@@ -7,3 +7,4 @@ router.post('/register', registerUser);  // Ruta para registrar un usuario
 router.post('/login', loginUser);  // Ruta para iniciar sesión
 
 export default router;
+
