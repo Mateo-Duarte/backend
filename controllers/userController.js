@@ -3,15 +3,15 @@ import bcrypt from 'bcrypt';
 
 // Controlador para registrar usuarios
 export const registerUser = async (req, res) => {
-  const { id_usuario, first_name, last_name, country, contraseña } = req.body;
+  const { id_usuario, first_name, last_name, country, password } = req.body;
 
   try {
     // Hashear la contraseña antes de guardarla
-    const hashedPassword = await bcrypt.hash(contraseña, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insertar el nuevo usuario en la base de datos
     await pool.query(
-      'INSERT INTO users (id_usuario, first_name, last_name, country, contraseña) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO users (id_usuario, first_name, last_name, country, password) VALUES (?, ?, ?, ?, ?)',
       [id_usuario, first_name, last_name, country, hashedPassword]
     );
 
@@ -24,7 +24,7 @@ export const registerUser = async (req, res) => {
 
 // Controlador para iniciar sesión
 export const loginUser = async (req, res) => {
-  const { id_usuario, contraseña } = req.body;
+  const { id_usuario, password } = req.body;
 
   try {
     const [rows] = await pool.query('SELECT * FROM users WHERE id_usuario = ?', [id_usuario]);
@@ -35,23 +35,13 @@ export const loginUser = async (req, res) => {
 
     const user = rows[0];
     // Comparar la contraseña con la hasheada
-    const isPasswordValid = await bcrypt.compare(contraseña, user.contraseña);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (isPasswordValid) {
       return res.status(200).json({ message: 'Inicio de sesión exitoso' });
+    } else {
+      return res.status(401).json({ error: 'Contraseña inválida' });
     }
-
-    // Si no es válida, comprobar si es una contraseña en texto plano
-    if (contraseña === user.contraseña) {
-      // Hasheamos la contraseña en texto plano para actualizarla en la base de datos
-      const hashedPassword = await bcrypt.hash(contraseña, 10);
-      await pool.query('UPDATE users SET contraseña = ? WHERE id_usuario = ?', [hashedPassword, id_usuario]);
-
-      return res.json({ message: 'Inicio de sesión exitoso y contraseña actualizada' });
-    }
-    
-    // Si ninguna verificación es correcta
-    return res.status(401).json({ error: 'Contraseña inválida' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error del servidor' });
