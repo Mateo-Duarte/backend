@@ -20,3 +20,14 @@ export const addComment = async (req, res) => {
     res.status(500).json({ error: 'Error al agregar el comentario' });
   }
 };
+
+// Función para obtener todos los comentarios
+export const getComments = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM comentario');
+    res.json(rows); // Devuelve todos los comentarios
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener los comentarios' });
+  }
+};
