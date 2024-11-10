@@ -1,11 +1,12 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors'; // Importar CORS
+import cors from 'cors';
 import pool from './config/database.js';
 import lugarRoutes from './routes/lugar.js';
 import userRoutes from './routes/user.js';
+import comentarioRoutes from './routes/comentarioRoutes.js';  // Importar las rutas de comentarios
 
-dotenv.config();  // el dotoenv debe estar antes de cualquier otra cosa
+dotenv.config();  // El dotenv debe estar antes de cualquier otra cosa
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,17 +21,18 @@ console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
 console.log('DB_NAME:', process.env.DB_NAME);
 
 app.use('/api/lugares', lugarRoutes);
-app.use('/api/users', userRoutes);  // Asegúrate de que esto está configurado
+app.use('/api/users', userRoutes);  
+app.use('/api/comentarios', comentarioRoutes);  // Configurar las rutas de comentarios
 
 app.post('/login', (req, res) => {
-    const sql="SELECT * FROM users WHERE id_usuario = ? AND contraseña = ?";
-    const VALUES=[req.body.id_usuario, req.body.contraseña]
+    const sql = "SELECT * FROM users WHERE id_usuario = ? AND contraseña = ?";
+    const VALUES = [req.body.id_usuario, req.body.contraseña];
 
-    db.query(sql, [VALUES], (err, data) => {
+    pool.query(sql, VALUES, (err, data) => {
         if (err) return res.json("login error");
         return res.json(data);
-    })
-})
+    });
+});
 
 // Ruta de prueba para verificar la conexión con la base de datos
 app.get('/test-db', async (req, res) => {
