@@ -34,8 +34,6 @@ export const loginUser = async (req, res) => {
     }
 
     const user = rows[0];
-    // Comparar la contraseña con la hasheada
-    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (isPasswordValid) {
       return res.status(200).json({ message: 'Inicio de sesión exitoso' });
