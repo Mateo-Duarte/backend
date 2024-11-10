@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 
 // Controlador para registrar usuarios
 export const registerUser = async (req, res) => {
-  const { id_usuario, first_name, last_name, country, password } = req.body;
+  const { id_usuario, first_name, last_name, country, email, password } = req.body; // Añadir email aquí
 
   // Verificar si la contraseña está siendo recibida correctamente
   console.log('Contraseña recibida:', password);  // Esto te permitirá ver si la contraseña está llegando bien
@@ -18,8 +18,8 @@ export const registerUser = async (req, res) => {
 
     // Insertar el nuevo usuario en la base de datos
     await pool.query(
-      'INSERT INTO users (id_usuario, first_name, last_name, country, contraseña) VALUES (?, ?, ?, ?, ?)',  // Asegúrate de que "contraseña" sea el nombre correcto de la columna
-      [id_usuario, first_name, last_name, country, hashedPassword]
+      'INSERT INTO users (id_usuario, first_name, last_name, country, email, contraseña) VALUES (?, ?, ?, ?, ?, ?)', // Añadir email aquí
+      [id_usuario, first_name, last_name, country, email, hashedPassword]
     );
 
     res.status(201).json({ message: 'Usuario registrado exitosamente' });
@@ -28,8 +28,7 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ error: 'Error al registrar el usuario' });
   }
 };
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Función para validar usuario y contraseña
 function validateUser(password, user) {
   return new Promise((resolve, reject) => {
