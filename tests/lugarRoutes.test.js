@@ -1,124 +1,83 @@
 import request from 'supertest';
 import express from 'express';
-import lugarRoutes from '../routes/lugarRoutes';
-import { getLugares, createLugar, updateLugar, deleteLugar } from '../controllers/lugarController';
-import pool from '../config/database';
+import lugarRoutes from '../routes/lugar.js'; // Ajusta la ruta según la ubicación de tu archivo
 
-// Crear una instancia de la aplicación Express
+// Configura una instancia de la aplicación de Express para las pruebas
 const app = express();
-app.use(express.json());
-app.use('/lugares', lugarRoutes);
+app.use(express.json()); // Permite que la app interprete JSON en las solicitudes
+app.use('/api/lugares', lugarRoutes); // Monta las rutas de lugar en una ruta base
 
-// Mockear la base de datos y los controladores
-jest.mock('../config/database');
-jest.mock('../controllers/lugarController');
+// Pruebas para la ruta GET /api/lugares
+describe('GET /api/lugares', () => {
+    it('debería obtener la lista de lugares', async () => {
+        const response = await request(app).get('/api/lugares');
 
-describe('lugarRoutes', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+        expect(response.statusCode).toBe(200); // Asegúrate de que el controlador responda con 200
+        expect(Array.isArray(response.body)).toBe(true); // Verifica que devuelva una lista
+    });
+});
 
-  describe('GET /lugares', () => {
-    it('should call getLugares controller', async () => {
-      const mockGetLugares = jest.fn((req, res) => res.status(200).json([{ id_lugar: 1, nombre: 'Lugar 1', location: 'Ubicación 1', precio_entrada: 10, descripcion: 'Descripción 1' }]));
-      getLugares.mockImplementationOnce(mockGetLugares);
+// Pruebas para la ruta POST /api/lugares
+describe('POST /api/lugares', () => {
+    it('debería crear un nuevo lugar', async () => {
+        const newLugar = {
+            nombre: 'Parque Natural',
+            descripcion: 'Un lugar hermoso para disfrutar de la naturaleza',
+            ubicacion: 'Medellín',
+            precio: 10000
+        };
 
-      const res = await request(app).get('/lugares');
+        const response = await request(app).post('/api/lugares').send(newLugar);
 
-      expect(mockGetLugares).toHaveBeenCalled();
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual([{ id_lugar: 1, nombre: 'Lugar 1', location: 'Ubicación 1', precio_entrada: 10, descripcion: 'Descripción 1' }]);
+        expect(response.statusCode).toBe(201); // Código de estado para creación exitosa
+        expect(response.body).toHaveProperty('id'); // Verifica que se devuelva un id para el lugar creado
+        expect(response.body.nombre).toBe(newLugar.nombre); // Verifica que el nombre coincida
+    });
+});
+
+// Pruebas para la ruta PUT /api/lugares/:id
+describe('PUT /api/lugares/:id', () => {
+    it('debería actualizar un lugar existente', async () => {
+        const lugarId = 1; // Ajusta con un id válido o usa mocks en controladores
+        const updateData = {
+            nombre: 'Parque Actualizado',
+            descripcion: 'Descripción actualizada del lugar'
+        };
+
+        const response = await request(app).put(`/api/lugares/${lugarId}`).send(updateData);
+
+        expect(response.statusCode).toBe(200); // Código de estado para actualización exitosa
+        expect(response.body).toHaveProperty('nombre', updateData.nombre); // Verifica que el nombre se haya actualizado
     });
 
-    it('should return 500 if there is an error getting lugares', async () => {
-      const mockGetLugares = jest.fn((req, res) => res.status(500).json({ error: 'Error al obtener los lugares' }));
-      getLugares.mockImplementationOnce(mockGetLugares);
+    it('debería devolver un error si el lugar no existe', async () => {
+        const invalidId = 9999; // Id de lugar no existente
+        const updateData = { nombre: 'Lugar Inexistente' };
 
-      const res = await request(app).get('/lugares');
+        const response = await request(app).put(`/api/lugares/${invalidId}`).send(updateData);
 
-      expect(mockGetLugares).toHaveBeenCalled();
-      expect(res.status).toBe(500);
-      expect(res.body).toEqual({ error: 'Error al obtener los lugares' });
+        expect(response.statusCode).toBe(404); // Ajusta el código de estado para un recurso no encontrado
+        expect(response.body).toHaveProperty('error'); // Verifica que contenga un mensaje de error
     });
-  });
+});
 
-  describe('POST /lugares', () => {
-    it('should call createLugar controller', async () => {
-      const mockCreateLugar = jest.fn((req, res) => res.status(201).json({ message: 'Lugar creado', id: 1 }));
-      createLugar.mockImplementationOnce(mockCreateLugar);
+// Pruebas para la ruta DELETE /api/lugares/:id
+describe('DELETE /api/lugares/:id', () => {
+    it('debería eliminar un lugar existente', async () => {
+        const lugarId = 1; // Ajusta con un id válido o usa mocks en controladores
 
-      const res = await request(app)
-        .post('/lugares')
-        .send({ nombre: 'Lugar 1', location: 'Ubicación 1', precio_entrada: 10, descripcion: 'Descripción 1' });
+        const response = await request(app).delete(`/api/lugares/${lugarId}`);
 
-      expect(mockCreateLugar).toHaveBeenCalled();
-      expect(res.status).toBe(201);
-      expect(res.body).toEqual({ message: 'Lugar creado', id: 1 });
+        expect(response.statusCode).toBe(200); // Código de estado para eliminación exitosa
+        expect(response.body).toHaveProperty('message'); // Verifica que haya un mensaje de confirmación
     });
 
-    it('should return 500 if there is an error creating lugar', async () => {
-      const mockCreateLugar = jest.fn((req, res) => res.status(500).json({ error: 'Error al crear el lugar' }));
-      createLugar.mockImplementationOnce(mockCreateLugar);
+    it('debería devolver un error si el lugar no existe', async () => {
+        const invalidId = 9999; // Id de lugar no existente
 
-      const res = await request(app)
-        .post('/lugares')
-        .send({ nombre: 'Lugar 1', location: 'Ubicación 1', precio_entrada: 10, descripcion: 'Descripción 1' });
+        const response = await request(app).delete(`/api/lugares/${invalidId}`);
 
-      expect(mockCreateLugar).toHaveBeenCalled();
-      expect(res.status).toBe(500);
-      expect(res.body).toEqual({ error: 'Error al crear el lugar' });
+        expect(response.statusCode).toBe(404); // Código de estado para recurso no encontrado
+        expect(response.body).toHaveProperty('error'); // Verifica que contenga un mensaje de error
     });
-  });
-
-  describe('PUT /lugares/:id', () => {
-    it('should call updateLugar controller', async () => {
-      const mockUpdateLugar = jest.fn((req, res) => res.status(200).json({ message: 'Lugar updated' }));
-      updateLugar.mockImplementationOnce(mockUpdateLugar);
-
-      const res = await request(app)
-        .put('/lugares/1')
-        .send({ nombre: 'Lugar 1', location: 'Ubicación 1', precio_entrada: 10, descripcion: 'Descripción actualizada' });
-
-      expect(mockUpdateLugar).toHaveBeenCalled();
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual({ message: 'Lugar updated' });
-    });
-
-    it('should return 500 if there is an error updating lugar', async () => {
-      const mockUpdateLugar = jest.fn((req, res) => res.status(500).json({ error: 'Error al actualizar el lugar' }));
-      updateLugar.mockImplementationOnce(mockUpdateLugar);
-
-      const res = await request(app)
-        .put('/lugares/1')
-        .send({ nombre: 'Lugar 1', location: 'Ubicación 1', precio_entrada: 10, descripcion: 'Descripción actualizada' });
-
-      expect(mockUpdateLugar).toHaveBeenCalled();
-      expect(res.status).toBe(500);
-      expect(res.body).toEqual({ error: 'Error al actualizar el lugar' });
-    });
-  });
-
-  describe('DELETE /lugares/:id', () => {
-    it('should call deleteLugar controller', async () => {
-      const mockDeleteLugar = jest.fn((req, res) => res.status(200).json({ message: 'Lugar deleted' }));
-      deleteLugar.mockImplementationOnce(mockDeleteLugar);
-
-      const res = await request(app).delete('/lugares/1');
-
-      expect(mockDeleteLugar).toHaveBeenCalled();
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual({ message: 'Lugar deleted' });
-    });
-
-    it('should return 500 if there is an error deleting lugar', async () => {
-      const mockDeleteLugar = jest.fn((req, res) => res.status(500).json({ error: 'Error al eliminar el lugar' }));
-      deleteLugar.mockImplementationOnce(mockDeleteLugar);
-
-      const res = await request(app).delete('/lugares/1');
-
-      expect(mockDeleteLugar).toHaveBeenCalled();
-      expect(res.status).toBe(500);
-      expect(res.body).toEqual({ error: 'Error al eliminar el lugar' });
-    });
-  });
 });

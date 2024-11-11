@@ -1,90 +1,64 @@
 import request from 'supertest';
 import express from 'express';
-import userRoutes from '../routes/userRoutes';
-import { registerUser, loginUser } from '../controllers/userController';
-import pool from '../config/database';
-import bcrypt from 'bcryptjs';
+import userRoutes from '../routes/user.js'; // Ajusta la ruta según la ubicación de tu archivo
 
-// Crear una instancia de la aplicación Express
+// Configura una instancia de la aplicación de Express para las pruebas
 const app = express();
-app.use(express.json());
-app.use('/usuarios', userRoutes);
+app.use(express.json()); // Permite que la app pueda interpretar JSON en las solicitudes
+app.use('/api/users', userRoutes); // Monta las rutas de usuario en una ruta base
 
-// Mockear la base de datos y los controladores
-jest.mock('../config/database');
-jest.mock('../controllers/userController');
+// Pruebas para la ruta de registro de usuario
+describe('POST /api/users/register', () => {
+    it('debería registrar un nuevo usuario', async () => {
+        const newUser = {
+            nombre: 'John Doe',
+            correo: 'johndoe@example.com',
+            password: 'password123'
+        };
+        
+        const response = await request(app).post('/api/users/register').send(newUser);
 
-describe('userRoutes', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe('POST /usuarios/register', () => {
-    it('should call registerUser controller', async () => {
-      const mockRegisterUser = jest.fn((req, res) => res.status(201).json({ message: 'Usuario registrado exitosamente' }));
-      registerUser.mockImplementationOnce(mockRegisterUser);
-
-      const res = await request(app)
-        .post('/usuarios/register')
-        .send({ id_usuario: '1', first_name: 'Test', last_name: 'User', country: 'Testland', password: 'password' });
-
-      expect(mockRegisterUser).toHaveBeenCalled();
-      expect(res.status).toBe(201);
-      expect(res.body).toEqual({ message: 'Usuario registrado exitosamente' });
+        // Asegúrate de que el controlador responda con el código de estado esperado
+        expect(response.statusCode).toBe(201); // Ajusta este código según lo que devuelva tu controlador
+        expect(response.body).toHaveProperty('message'); // Verifica que contenga un mensaje
     });
 
-    it('should return 400 if password is missing', async () => {
-      const mockRegisterUser = jest.fn((req, res) => res.status(400).json({ error: 'La contraseña es requerida' }));
-      registerUser.mockImplementationOnce(mockRegisterUser);
+    it('debería devolver un error si falta algún campo obligatorio', async () => {
+        const newUser = {
+            nombre: 'John Doe',
+            // Falta correo y password
+        };
+        
+        const response = await request(app).post('/api/users/register').send(newUser);
 
-      const res = await request(app)
-        .post('/usuarios/register')
-        .send({ id_usuario: '1', first_name: 'Test', last_name: 'User', country: 'Testland' });
-
-      expect(mockRegisterUser).toHaveBeenCalled();
-      expect(res.status).toBe(400);
-      expect(res.body).toEqual({ error: 'La contraseña es requerida' });
+        expect(response.statusCode).toBe(400); // Ajusta el código de estado en función del error esperado
+        expect(response.body).toHaveProperty('error'); // Verifica que haya un mensaje de error
     });
-  });
+});
 
-  describe('POST /usuarios/login', () => {
-    it('should call loginUser controller', async () => {
-      const mockLoginUser = jest.fn((req, res) => res.status(200).json({ message: 'Inicio de sesión exitoso' }));
-      loginUser.mockImplementationOnce(mockLoginUser);
+// Pruebas para la ruta de login de usuario
+describe('POST /api/users/login', () => {
+    it('debería iniciar sesión con credenciales válidas', async () => {
+        const userCredentials = {
+            correo: 'johndoe@example.com',
+            password: 'password123'
+        };
 
-      const res = await request(app)
-        .post('/usuarios/login')
-        .send({ id_usuario: '1', password: 'password' });
+        const response = await request(app).post('/api/users/login').send(userCredentials);
 
-      expect(mockLoginUser).toHaveBeenCalled();
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual({ message: 'Inicio de sesión exitoso' });
-    });
-
-    it('should return 404 if user is not found', async () => {
-      const mockLoginUser = jest.fn((req, res) => res.status(404).json({ error: 'Usuario no encontrado' }));
-      loginUser.mockImplementationOnce(mockLoginUser);
-
-      const res = await request(app)
-        .post('/usuarios/login')
-        .send({ id_usuario: '1', password: 'password' });
-
-      expect(mockLoginUser).toHaveBeenCalled();
-      expect(res.status).toBe(404);
-      expect(res.body).toEqual({ error: 'Usuario no encontrado' });
+        expect(response.statusCode).toBe(200); // Ajusta según el código de éxito que definas
+        expect(response.body).toHaveProperty('token'); // Verifica que devuelva un token u otra información de sesión
     });
 
-    it('should return 401 if password is incorrect', async () => {
-      const mockLoginUser = jest.fn((req, res) => res.status(401).json({ error: 'Contraseña inválida' }));
-      loginUser.mockImplementationOnce(mockLoginUser);
+    it('debería devolver un error con credenciales incorrectas', async () => {
+        const userCredentials = {
+            correo: 'johndoe@example.com',
+            password: 'wrongpassword'
+        };
 
-      const res = await request(app)
-        .post('/usuarios/login')
-        .send({ id_usuario: '1', password: 'wrongpassword' });
+        const response = await request(app).post('/api/users/login').send(userCredentials);
 
-      expect(mockLoginUser).toHaveBeenCalled();
-      expect(res.status).toBe(401);
-      expect(res.body).toEqual({ error: 'Contraseña inválida' });
+        expect(response.statusCode).toBe(401); // Ajusta el código según el tipo de error
+        expect(response.body).toHaveProperty('error'); // Verifica que contenga un mensaje de error
     });
-  });
 });
