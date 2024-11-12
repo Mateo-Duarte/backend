@@ -22,7 +22,7 @@ export const registerUser = async (req, res) => {
       [id_usuario, first_name, last_name, country, email, hashedPassword, security_question1, security_answer1, security_question2, security_answer2]
     );
 
-    res.status(201).json({ message: 'Usuario registrado exitosamente' });
+    res.status(200).json({ message: 'Usuario registrado exitosamente' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al registrar el usuario' });
