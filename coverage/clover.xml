@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1731346851959" clover="3.2.0">
-  <project timestamp="1731346851960" name="All files">
-    <metrics statements="89" coveredstatements="78" conditionals="17" coveredconditionals="12" methods="13" coveredmethods="10" elements="119" coveredelements="100" complexity="0" loc="89" ncloc="89" packages="3" files="7" classes="7"/>
+<coverage generated="1731451387621" clover="3.2.0">
+  <project timestamp="1731451387621" name="All files">
+    <metrics statements="98" coveredstatements="86" conditionals="22" coveredconditionals="17" methods="14" coveredmethods="11" elements="134" coveredelements="114" complexity="0" loc="98" ncloc="98" packages="3" files="8" classes="8"/>
     <package name="config">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
       <file name="database.js" path="C:\Users\rayde\Downloads\Ecoturistea_Proyecto\backend\config\database.js">
         <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="4" count="7" type="stmt"/>
-        <line num="6" count="7" type="stmt"/>
+        <line num="4" count="8" type="stmt"/>
+        <line num="6" count="8" type="stmt"/>
       </file>
     </package>
     <package name="controllers">
-      <metrics statements="76" coveredstatements="65" conditionals="17" coveredconditionals="12" methods="13" coveredmethods="10"/>
+      <metrics statements="85" coveredstatements="73" conditionals="22" coveredconditionals="17" methods="14" coveredmethods="11"/>
       <file name="comentarioController.js" path="C:\Users\rayde\Downloads\Ecoturistea_Proyecto\backend\controllers\comentarioController.js">
         <metrics statements="15" coveredstatements="15" conditionals="5" coveredconditionals="5" methods="2" coveredmethods="2"/>
         <line num="4" count="3" type="stmt"/>
@@ -56,6 +56,18 @@
         <line num="36" count="4" type="stmt"/>
         <line num="37" count="3" type="stmt"/>
         <line num="39" count="1" type="stmt"/>
+      </file>
+      <file name="ratingControllers.js" path="C:\Users\rayde\Downloads\Ecoturistea_Proyecto\backend\controllers\ratingControllers.js">
+        <metrics statements="9" coveredstatements="8" conditionals="5" coveredconditionals="5" methods="1" coveredmethods="1"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="7" count="3" type="cond" truecount="5" falsecount="0"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
       </file>
       <file name="userController.js" path="C:\Users\rayde\Downloads\Ecoturistea_Proyecto\backend\controllers\userController.js">
         <metrics statements="37" coveredstatements="26" conditionals="12" coveredconditionals="7" methods="7" coveredmethods="4"/>

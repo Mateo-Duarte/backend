@@ -78,7 +78,7 @@ describe('userController', () => {
         .send({ id_usuario: '1', password: 'wrongPassword' });
 
       expect(res.status).toBe(401);
-      expect(res.body).toEqual({ error: 'Contraseña incorrecta' });
+      expect(res.body).toEqual({ error: 'Contraseña inválida' });  // Ajuste en el mensaje de error
     });
 
     it('should return 200 if user is authenticated successfully', async () => {
