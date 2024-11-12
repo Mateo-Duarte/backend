@@ -4,7 +4,8 @@ import cors from 'cors';
 import pool from './config/database.js';
 import lugarRoutes from './routes/lugar.js';
 import userRoutes from './routes/user.js';
-import comentarioRoutes from './routes/comentarioRoutes.js';  // Importar las rutas de comentarios
+import comentarioRoutes from './routes/comentarioRoutes.js'; 
+import ratingRoutes from './routes/ratingRoutes.js';
 
 dotenv.config();  // El dotenv debe estar antes de cualquier otra cosa
 
@@ -19,10 +20,11 @@ console.log('DB_HOST:', process.env.DB_HOST);
 console.log('DB_USER:', process.env.DB_USER);
 console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
 console.log('DB_NAME:', process.env.DB_NAME);
-
+// Rutas
 app.use('/api/lugares', lugarRoutes);
 app.use('/api/users', userRoutes);  
-app.use('/api/comentarios', comentarioRoutes);  // Configurar las rutas de comentarios
+app.use('/api/comentarios', comentarioRoutes);
+app.use('/api/ratings', ratingRoutes); 
 
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM users WHERE id_usuario = ? AND contraseña = ?";
